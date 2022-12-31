@@ -1,10 +1,5 @@
 import create from "zustand";
-
-enum ChatType {
-  BOT = "bot",
-  USER = "user",
-  RESULT = "result",
-}
+import { ChatType } from "../pages/chat";
 
 type Chat = {
   type: ChatType;
@@ -14,6 +9,8 @@ type Chat = {
 export type UserState = {
   chats: Chat[];
   setChats: (by: Chat[]) => void;
+  darkMode: boolean;
+  setDarkMode: (by: boolean) => void;
 };
 
 export const useChatStore = create<UserState>((set) => ({
@@ -25,5 +22,9 @@ export const useChatStore = create<UserState>((set) => ({
   ],
   setChats: (by) => {
     set((state) => ({ ...state, chats: by }));
+  },
+  darkMode: false,
+  setDarkMode: (by) => {
+    set((state) => ({ ...state, darkMode: by }));
   },
 }));
