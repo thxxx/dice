@@ -3,12 +3,12 @@ import Head from "next/head";
 import { FormEvent, useEffect, useState } from "react";
 import ChatBubble from "../../components/Chat/ChatBubble";
 import styled from "@emotion/styled";
-import { dbService } from "../../utils/fbase";
 import { useRef } from "react";
 import AppBar from "../../components/AppBar";
 import { useChatStore } from "../../utils/store";
 import { ChatInput, InputWrapper } from "..";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
+import router from "next/router";
 
 export enum ChatType {
   BOT = "bot",
@@ -32,16 +32,21 @@ const ChatPage: NextPage = () => {
   }, [chats]);
 
   useEffect(() => {
+    if (router.query.isFromHome) {
+      router.replace("/chat", undefined, { shallow: true });
+      submitChat(router.query.text as string);
+    }
     inputRef.current && inputRef.current.focus();
   }, []);
 
-  const submitChat = () => {
+  const submitChat = (text: string) => {
     if (loading) return;
 
     let chatsCopied = [...chats];
+
     chatsCopied.push({
       type: ChatType.USER,
-      text: input,
+      text: text,
     });
 
     setChats([
@@ -61,7 +66,7 @@ const ChatPage: NextPage = () => {
         },
         {
           type: ChatType.BOT,
-          text: "Response",
+          text: "What do you enjoy most about the atmosphere of a restaurant?",
         }
       );
       setChats([...chatsCopied]);
@@ -71,12 +76,6 @@ const ChatPage: NextPage = () => {
     }, 5000);
 
     setInput("");
-  };
-
-  const uploadDb = async () => {
-    await dbService.collection("data").add({
-      test: "eeew",
-    });
   };
 
   return (
@@ -109,7 +108,7 @@ const ChatPage: NextPage = () => {
 
         <InputWrapperFixed
           onSubmit={(e: any) => {
-            submitChat();
+            submitChat(input);
             e.preventDefault();
           }}>
           <ChatInput
@@ -119,10 +118,12 @@ const ChatPage: NextPage = () => {
             onChange={(e) => setInput(e.currentTarget.value)}
             placeholder="Type anything..."
           />
-          <span className="icon" onClick={(e) => submitChat()}>
+          <span className="icon" onClick={(e) => submitChat(input)}>
             <ArrowForwardIcon color="whiteAlpha.800" />
           </span>
-          <div>Don{"'"}t know what to eat?</div>
+          <div className="dontknow">
+            Don{"'"}t know what to eat? <span>Let us Do!</span>
+          </div>
         </InputWrapperFixed>
       </ChatContainer>
     </>
@@ -137,6 +138,16 @@ const InputWrapperFixed = styled(InputWrapper)`
   width: 900px;
   display: flex;
   flex-direction: column;
+
+  .dontknow {
+    padding: 4px;
+    font-size: 15px;
+    color: ${({ theme }) => theme.textColor02};
+    span {
+      font-weight: 600;
+      color: ${({ theme }) => theme.purple03};
+    }
+  }
 `;
 
 const ChatContainer = styled.div`
@@ -145,7 +156,7 @@ const ChatContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 12px;
-  padding-bottom: 70px;
+  padding-bottom: 100px;
   overflow: scroll;
   max-height: 90vh;
 `;

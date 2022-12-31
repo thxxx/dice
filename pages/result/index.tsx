@@ -18,6 +18,7 @@ const ResultPage = () => {
 
   return (
     <ResultContainer>
+      <div>Date, People</div>
       <div>Results</div>
       <div>
         Filters
