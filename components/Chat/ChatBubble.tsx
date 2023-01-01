@@ -3,26 +3,70 @@ import styled from "@emotion/styled";
 import Link from "next/link";
 import React from "react";
 import { ChatType } from "../../pages/chat";
+import { useChatStore } from "../../utils/store";
 
 const BR = "12px";
 
-type ChatInputType = {
+export type ChatInputType = {
   text: string;
   type?: ChatType;
+  options?: string[];
+  submitChat?: (text: string) => void;
+  questionKey?: string;
 };
 
-const ChatBubble = ({ text, type = ChatType.USER }: ChatInputType) => {
+const ChatBubble = ({
+  text,
+  type = ChatType.USER,
+  options,
+  submitChat,
+  questionKey,
+}: ChatInputType) => {
+  const { key } = useChatStore();
+
+  const returnBubble = () => {
+    switch (type) {
+      case ChatType.BOT:
+        if (text === "loading...") {
+          return (
+            <ChatBubbleOne type={type}>
+              <h1>Finding...</h1>
+            </ChatBubbleOne>
+          );
+        } else {
+          return (
+            <ChatBubbleOne type={type}>
+              {text}
+              {options && (
+                <ChatOptions>
+                  {options?.map((item, index) => {
+                    return (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          if (questionKey === key)
+                            submitChat && submitChat(item);
+                        }}>
+                        {item}
+                      </button>
+                    );
+                  })}
+                </ChatOptions>
+              )}
+            </ChatBubbleOne>
+          );
+        }
+      case ChatType.USER:
+        return <ChatBubbleOne type={type}>{text}</ChatBubbleOne>;
+      case ChatType.RESULT:
+        <ChatResult href="/result">{text}</ChatResult>;
+      default:
+        return <></>;
+    }
+  };
   return (
     <ChatBubbleContainer align={type !== "user" ? "flex-start" : "flex-end"}>
-      {type === ChatType.RESULT ? (
-        <ChatResult href="/result">{text}</ChatResult>
-      ) : type === ChatType.BOT && text === "loading..." ? (
-        <ChatBubbleOne type={type}>
-          <h1>Finding...</h1>
-        </ChatBubbleOne>
-      ) : (
-        <ChatBubbleOne type={type}>{text}</ChatBubbleOne>
-      )}
+      {returnBubble()}
     </ChatBubbleContainer>
   );
 };
@@ -57,4 +101,26 @@ const ChatResult = styled(Link)`
   width: 150px;
   text-align: center;
   background-color: rgba(213, 213, 231, 0.6);
+`;
+
+const ChatOptions = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 5px;
+  flex-wrap: wrap;
+
+  button {
+    margin-top: 5px;
+    padding: 3px 14px;
+    border-radius: 40px;
+    margin-right: 6px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    background: rgba(250, 250, 250, 0.8);
+
+    &:hover {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+    }
+  }
 `;

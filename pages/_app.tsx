@@ -37,7 +37,6 @@ const MobileContainer = styled.div`
   font-family: Pretendard;
 
   .inner {
-    background: ${({ theme }) => theme.bgColor};
     width: 900px;
     min-height: 100vh;
 

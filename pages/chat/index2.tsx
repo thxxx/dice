@@ -9,7 +9,6 @@ import { useChatStore } from "../../utils/store";
 import { ChatInput, InputWrapper } from "..";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import router from "next/router";
-import { ResponseType } from "../api/call";
 
 export enum ChatType {
   BOT = "bot",
@@ -21,9 +20,10 @@ export enum ChatType {
 const ChatPage: NextPage = () => {
   const [input, setInput] = useState<string>("");
   const [question, setQuestion] = useState<string>("");
-  const [answer, setAnswer] = useState<string[]>([]);
+  const [answer, setAnswer] = useState([]);
+  const [key, setKey] = useState<string>("");
   const [dict, setDict] = useState({});
-  const { chats, key, setChats, setKey } = useChatStore();
+  const { chats, setChats } = useChatStore();
   const chatRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -43,17 +43,17 @@ const ChatPage: NextPage = () => {
     inputRef.current && inputRef.current.focus();
   }, []);
 
+
   const handleClick = async (input: any) => {
     try {
-      const response = await fetch("/api/call", {
-        method: "POST",
+      const response = await fetch('/api/hello',  {
+        method: 'POST',
         body: JSON.stringify({
-          input: input,
+          "input": input
         }),
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' }
       });
       const output = await response.json();
-
       console.log(output);
 
       setQuestion(output[0]);
@@ -61,24 +61,37 @@ const ChatPage: NextPage = () => {
       setKey(output[2]);
       setDict(output[3]);
 
-      const body: ResponseType = {
-        question: output[0],
-        answer: output[1],
-        key: output[2],
-        dict: output[3],
-        valid_num: output[4],
-      };
+      const body = {
+        question:output[0],
+        answer:output[1],
+        key:output[2],
+        dict:output[3],
+      }
 
       return body;
-    } catch (error) {}
+      
+    } catch (error) {
+
+    }
 
     setLoading(false);
   };
 
   const submitChat = async (text: string) => {
     if (loading) return;
+    
+    let output:any;
+
+    if(text === 'yes' || text==='no'){
+      let copiedDict:any = dict
+      copiedDict[key] = text
+      console.log("응답 : ", copiedDict)
+      output = handleClick(copiedDict)
+      return;
+    }
 
     let chatsCopied = [...chats];
+
     chatsCopied.push({
       type: ChatType.USER,
       text: text,
@@ -91,23 +104,11 @@ const ChatPage: NextPage = () => {
         text: "loading...",
       },
     ]);
-    setInput("");
-
-    let output: ResponseType | undefined;
-
-    // check whether it is response to bot question
-    if (answer.length > 0 && answer.includes(text)) {
-      let copiedDict: any = dict;
-      if (key === "atmosphere") copiedDict[key] = [text];
-      else copiedDict[key] = text;
-      output = await handleClick(copiedDict);
-    } else {
-      const input = {};
-      output = await handleClick(input);
-    }
-
     setLoading(true);
-
+    let input = {};
+    
+    output = await handleClick(input);
+    
     const to = setTimeout(() => {
       chatsCopied.push(
         {
@@ -116,9 +117,7 @@ const ChatPage: NextPage = () => {
         },
         {
           type: ChatType.BOT,
-          text: output?.question as string,
-          options: output?.answer,
-          questionKey: output?.key,
+          text: output?.question,
         }
       );
       setChats([...chatsCopied]);
@@ -126,6 +125,8 @@ const ChatPage: NextPage = () => {
 
       clearTimeout(to);
     }, 1000);
+
+    setInput("");
   };
 
   return (
@@ -141,20 +142,13 @@ const ChatPage: NextPage = () => {
       <ChatContainer ref={chatRef}>
         {chats.map((item, index) => {
           switch (item.type) {
-            case ChatType.USER:
+            case "user":
               return <ChatBubble key={index} text={item.text} />;
-            case ChatType.BOT:
+            case "bot":
               return (
-                <ChatBubble
-                  key={index}
-                  text={item.text}
-                  type={item.type}
-                  options={item.options}
-                  submitChat={submitChat}
-                  questionKey={item.questionKey}
-                />
+                <ChatBubble key={index} text={item.text} type={item.type} />
               );
-            case ChatType.RESULT:
+            case "result":
               return (
                 <ChatBubble key={index} text={item.text} type={item.type} />
               );
@@ -195,7 +189,6 @@ const InputWrapperFixed = styled(InputWrapper)`
   width: 900px;
   display: flex;
   flex-direction: column;
-
   .dontknow {
     padding: 4px;
     font-size: 15px;
@@ -204,10 +197,6 @@ const InputWrapperFixed = styled(InputWrapper)`
       font-weight: 600;
       color: ${({ theme }) => theme.purple03};
     }
-  }
-
-  @media (max-width: 900px) {
-    width: 95%;
   }
 `;
 

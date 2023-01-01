@@ -9,6 +9,7 @@ import { ChatType } from "./chat";
 import router from "next/router";
 import Footer from "../components/Footer";
 import BottomSheet from "../components/BottomSheet";
+import Image from "next/image";
 
 const TAGS = [
   "I want to go to japanese restaurant which is cozy and dog-allowed",
@@ -253,6 +254,8 @@ export const ChatInput = styled(Input)`
 const ChatBox = styled.div`
   width: 100%;
   padding: 50px 10px 30px 10px;
-  background: rgba(245, 245, 245, 0.3);
+  background: rgba(245, 245, 245, 0.5);
   border-radius: 6px;
+  box-shadow: 3px 3px 18px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 `;

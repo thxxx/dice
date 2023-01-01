@@ -7,7 +7,7 @@ export const theme = {
 export const lightTheme = {
   ...theme,
   color: "#000000",
-  bgColor: "white",
+  bgColor: "#f9f9f9",
   bgColor01: "#27282E",
   bgColor02: "#F4F3F5",
   textColor02: "#000000",
