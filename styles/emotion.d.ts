@@ -12,5 +12,7 @@ declare module "@emotion/react" {
     botChat: string;
     borderColor: string;
     borderColor01: string;
+    grey: string;
+    darkGrey: string;
   }
 }

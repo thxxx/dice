@@ -26,6 +26,8 @@ const ChatBubble = ({
 
   const returnBubble = () => {
     switch (type) {
+      case ChatType.RESULT:
+        return <ChatResult href="/result">{text}</ChatResult>;
       case ChatType.BOT:
         if (text === "loading...") {
           return (
@@ -58,8 +60,6 @@ const ChatBubble = ({
         }
       case ChatType.USER:
         return <ChatBubbleOne type={type}>{text}</ChatBubbleOne>;
-      case ChatType.RESULT:
-        <ChatResult href="/result">{text}</ChatResult>;
       default:
         return <></>;
     }
@@ -100,7 +100,8 @@ const ChatResult = styled(Link)`
   padding: 3px;
   width: 150px;
   text-align: center;
-  background-color: rgba(213, 213, 231, 0.6);
+  background-color: ${({ theme }) => theme.grey};
+  color: ${({ theme }) => theme.darkGrey};
 `;
 
 const ChatOptions = styled.div`

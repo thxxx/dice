@@ -10,6 +10,7 @@ import { ChatInput, InputWrapper } from "..";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import router from "next/router";
 import { ResponseType } from "../api/call";
+import { useToast } from "@chakra-ui/react";
 
 export enum ChatType {
   BOT = "bot",
@@ -23,10 +24,13 @@ const ChatPage: NextPage = () => {
   const [question, setQuestion] = useState<string>("");
   const [answer, setAnswer] = useState<string[]>([]);
   const [dict, setDict] = useState({});
-  const { chats, key, setChats, setKey } = useChatStore();
+  const [validNum, setValidNum] = useState<number>(0);
+  const { chats, key, filtered, setFiltered, setChats, setKey } =
+    useChatStore();
   const chatRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const toast = useToast();
 
   useEffect(() => {
     // set scroll to bottom.
@@ -56,11 +60,6 @@ const ChatPage: NextPage = () => {
 
       console.log(output);
 
-      setQuestion(output[0]);
-      setAnswer(output[1]);
-      setKey(output[2]);
-      setDict(output[3]);
-
       const body: ResponseType = {
         question: output[0],
         answer: output[1],
@@ -68,6 +67,31 @@ const ChatPage: NextPage = () => {
         dict: output[3],
         valid_num: output[4],
       };
+
+      setQuestion(body.question);
+      setAnswer(body.answer);
+      setKey(body.key);
+      setDict(body.dict);
+      setValidNum(body.valid_num);
+
+      let copiedFilter = filtered;
+      copiedFilter.push({
+        key: body.key,
+        answerList: body.answer,
+        answer: "",
+      });
+      Object.entries(body.dict).map((entry) => {
+        copiedFilter?.map((item: any) => {
+          if (
+            (!item.answer || item.answer.length === 0) &&
+            item.key === entry[0]
+          ) {
+            item.answer = entry[1];
+          }
+        });
+      });
+      setFiltered(copiedFilter);
+      console.log("카카", copiedFilter);
 
       return body;
     } catch (error) {}
@@ -77,55 +101,79 @@ const ChatPage: NextPage = () => {
 
   const submitChat = async (text: string) => {
     if (loading) return;
+    if (text.length === 0) {
+      toast({
+        position: "top",
+        title: "You have to type something to send",
+        duration: 2000,
+        status: "warning",
+        icon: <></>,
+      });
+      return;
+    }
 
+    // send user chat
     let chatsCopied = [...chats];
     chatsCopied.push({
       type: ChatType.USER,
       text: text,
     });
-
-    setChats([
-      ...chatsCopied,
-      {
-        type: ChatType.BOT,
-        text: "loading...",
-      },
-    ]);
+    setChats([...chatsCopied]);
     setInput("");
 
     let output: ResponseType | undefined;
 
+    const answerList = answer.map((item) =>
+      item.replace(/`s/gi, "").toLowerCase()
+    );
+
     // check whether it is response to bot question
-    if (answer.length > 0 && answer.includes(text)) {
+    if (
+      answerList.length > 0 &&
+      answerList.includes(text.replace(/`s/gi, "").toLowerCase())
+    ) {
+      setChats([
+        ...chatsCopied,
+        {
+          type: ChatType.BOT,
+          text: "loading...",
+        },
+      ]);
+
       let copiedDict: any = dict;
       if (key === "atmosphere") copiedDict[key] = [text];
       else copiedDict[key] = text;
+
       output = await handleClick(copiedDict);
+    } else if (question) {
+      toast({
+        position: "top",
+        title: "Please answer to the question",
+        duration: 2000,
+        status: "warning",
+        icon: <></>,
+      });
+      return;
     } else {
       const input = {};
       output = await handleClick(input);
     }
 
     setLoading(true);
-
-    const to = setTimeout(() => {
-      chatsCopied.push(
-        {
-          type: ChatType.RESULT,
-          text: "see now results",
-        },
-        {
-          type: ChatType.BOT,
-          text: output?.question as string,
-          options: output?.answer,
-          questionKey: output?.key,
-        }
-      );
-      setChats([...chatsCopied]);
-      setLoading(false);
-
-      clearTimeout(to);
-    }, 1000);
+    chatsCopied.push(
+      {
+        type: ChatType.RESULT,
+        text: "see now results",
+      },
+      {
+        type: ChatType.BOT,
+        text: output?.question as string,
+        options: output?.answer,
+        questionKey: output?.key,
+      }
+    );
+    setChats([...chatsCopied]);
+    setLoading(false);
   };
 
   return (
@@ -217,7 +265,7 @@ const ChatContainer = styled.div`
   align-items: center;
   justify-content: center;
   padding: 12px;
-  padding-bottom: 100px;
+  padding-bottom: 120px;
   overflow: scroll;
   max-height: 90vh;
 `;

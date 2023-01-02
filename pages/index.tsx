@@ -247,7 +247,7 @@ export const ChatInput = styled(Input)`
     outline: 2.5px solid rgba(250, 250, 250, 0.3);
   }
   @media (max-width: 900px) {
-    width: 90%;
+    width: 100%;
   }
 `;
 
