@@ -27,8 +27,7 @@ const Home: NextPage = () => {
   const submit = () => {
     if (!value) {
       toast({
-        title: "Account created.",
-        description: "We've created your account for you.",
+        title: "Please Type something",
         status: "success",
         duration: 9000,
         isClosable: true,

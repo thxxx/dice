@@ -1,13 +1,10 @@
 import React, { Dispatch, SetStateAction, useEffect } from "react";
 import { useState } from "react";
 import {
-  Modal,
   ModalOverlay,
-  ModalContent,
   ModalHeader,
   ModalFooter,
   ModalBody,
-  ModalCloseButton,
   Button,
 } from "@chakra-ui/react";
 import { QuestionType, useChatStore } from "../../utils/store";
@@ -59,6 +56,7 @@ const FilterModal = ({ isFilterOpen, setIsFilterOpen }: FilterModalProps) => {
           <CloseIcon />
         </CloseButton>
         <ModalBody>
+          <Desc>We filtered restaurants by your response.</Desc>
           {tempFilters?.map((item, i) => {
             if (item.answer)
               return (
@@ -88,7 +86,10 @@ const FilterModal = ({ isFilterOpen, setIsFilterOpen }: FilterModalProps) => {
         </ModalBody>
 
         <ModalFooter>
-          <Button width="100%" colorScheme="blue" onClick={() => saveChanges()}>
+          <Button
+            width="100%"
+            colorScheme="purple"
+            onClick={() => saveChanges()}>
             Save
           </Button>
         </ModalFooter>
@@ -111,13 +112,18 @@ const Filter = styled.button<{ chosen?: boolean }>`
   background: ${({ chosen, theme }) =>
     chosen ? theme.purple01 : theme.bgColor02};
   margin-top: 6px;
+  white-space: nowrap;
+  flex-wrap: nowrap;
 `;
+
 const FilterContainer = styled.div`
   margin-top: 10px;
   display: flex;
   flex-direction: column;
   align-items: start;
   justify-content: start;
+  padding-bottom: 20px;
+  border-bottom: 1px solid ${({ theme }) => theme.borderColor01};
 
   .filters {
     display: flex;
@@ -131,4 +137,9 @@ const FilterContainer = styled.div`
     font-weight: 600;
     padding: 5px 0px;
   }
+`;
+
+const Desc = styled.div`
+  font-size: 14px;
+  color: rgba(20, 20, 50, 0.6);
 `;

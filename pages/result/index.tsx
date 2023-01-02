@@ -1,4 +1,4 @@
-import { Button, Select } from "@chakra-ui/react";
+import { Button, Select, Tag } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import React, { useEffect } from "react";
 import { useState } from "react";
@@ -12,7 +12,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useChatStore } from "../../utils/store";
-import { CalendarIcon, CloseIcon } from "@chakra-ui/icons";
+import { CalendarIcon, CloseIcon, StarIcon } from "@chakra-ui/icons";
 import NumInput from "../../components/NumInput";
 import FilterModal from "./FilterModal";
 
@@ -35,27 +35,155 @@ const DAYS = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
 const RESTS = [
   {
-    name: "Tempo",
+    name: "Tempo1",
     url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
     category: ["Italian", "Bars"],
     overall_star: 3.9827378564641682,
     location: "4072 18th St",
   },
   {
-    name: "Tempo",
+    name: "Tempo2",
     url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
     category: ["Italian", "Bars"],
     overall_star: 3.9827378564641682,
     location: "4072 18th St",
   },
   {
-    name: "Tempo",
+    name: "Tempo3",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo4",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo5",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo6",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo7",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo8",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo9",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo7",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo8",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo9",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo7",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo8",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo9",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo7",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo8",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo9",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo7",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo8",
+    url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
+    category: ["Italian", "Bars"],
+    overall_star: 3.9827378564641682,
+    location: "4072 18th St",
+  },
+  {
+    name: "Tempo9",
     url: "https://www.yelp.com/biz/poesia-san-francisco?osq=restaurants",
     category: ["Italian", "Bars"],
     overall_star: 3.9827378564641682,
     location: "4072 18th St",
   },
 ];
+
+const ONE_PAGE_NUM = 5;
 
 const ResultPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -70,6 +198,7 @@ const ResultPage = () => {
     people,
     setPeople,
   } = useChatStore();
+  const [page, setPage] = useState<number>(1);
 
   const openDateChange = () => {
     setIsDateOpen(true);
@@ -79,12 +208,42 @@ const ResultPage = () => {
     return (
       <div className="date">
         Today({DAYS[settingDate.getDay()]} {MONTHS[settingDate.getMonth()]}{" "}
-        {settingDate.getDate()}) / 2 people
+        {settingDate.getDate()}) / {people} people
       </div>
     );
   };
 
-  console.log("필터들", filtered);
+  useEffect(() => {
+    const onGeoOkay = (e: any) => {
+      console.log(e);
+    };
+
+    const onGeoError = (e: any) => {
+      console.log("I can't find you. No weather for you.", e);
+    };
+
+    navigator.geolocation.getCurrentPosition(onGeoOkay, onGeoError);
+  }, []);
+
+  const returnPages = () => {
+    console.log("길이", RESTS.length);
+    return (
+      <>
+        {RESTS.map((_, i) => {
+          if (i % ONE_PAGE_NUM === 0) {
+            return (
+              <Pagination
+                onClick={() => setPage(i / ONE_PAGE_NUM + 1)}
+                key={i}
+                now={i / ONE_PAGE_NUM + 1 === page}>
+                {i / ONE_PAGE_NUM + 1}
+              </Pagination>
+            );
+          }
+        })}
+      </>
+    );
+  };
 
   return (
     <ResultContainer>
@@ -99,27 +258,41 @@ const ResultPage = () => {
         onClick={() => {
           setIsFilterOpen((prev) => !prev);
         }}>
-        Filters
-        {filtered.map((item, index) => {
-          if (item.answer)
-            return <FilterDefault key={index}>{item.key}</FilterDefault>;
-        })}
-      </Column>
-      <RestaurantsContainer>
-        <div>Click to move to yelp</div>
-        <div>
-          {RESTS.map((item, index) => {
-            return (
-              <Restaurant
-                key={index}
-                onClick={() => {
-                  window.open(item.url);
-                }}>
-                <div>{item.name}</div>
-              </Restaurant>
-            );
+        <div>Filters</div>
+        <div className="filters">
+          {filtered.map((item, index) => {
+            if (item.answer)
+              return <FilterDefault key={index}>{item.key}</FilterDefault>;
           })}
         </div>
+      </Column>
+      <RestaurantsContainer>
+        {/* <div className="label">Click to move to yelp</div> */}
+        <div>
+          {RESTS.slice((page - 1) * ONE_PAGE_NUM, page * ONE_PAGE_NUM).map(
+            (item, index) => {
+              return (
+                <Restaurant
+                  key={index}
+                  onClick={() => {
+                    window.open(item.url);
+                  }}>
+                  <div>
+                    {item.name} {index}
+                  </div>
+                  <div className="tags">
+                    {item.category.map((ca) => (
+                      <Tag key={ca}>{ca}</Tag>
+                    ))}
+                  </div>
+                  <div className="add_info"> {item.location}</div>
+                  <div className="add_info">{item.overall_star.toFixed(2)}</div>
+                </Restaurant>
+              );
+            }
+          )}
+        </div>
+        <div className="paginations">{returnPages()}</div>
       </RestaurantsContainer>
 
       <FilterModal
@@ -167,25 +340,53 @@ const ResultPage = () => {
 
 export default ResultPage;
 
+const Pagination = styled.button<{ now: boolean }>`
+  width: 30px;
+  height: 30px;
+  background: ${({ now, theme }) => (now ? theme.purple01 : theme.grey)};
+  color: ${({ theme }) => theme.darkGrey};
+  margin: 0px 4px;
+  border: 2.2px solid rgba(40, 40, 40, 0.3);
+  border-radius: 6px;
+
+  &:focus {
+    border: 3px solid rgba(40, 40, 40, 0.3);
+  }
+`;
+
 const RestaurantsContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-item: center;
   justify-content: start;
-  background-color: ${({ theme }) => theme.grey};
+  background-color: ${({ theme }) => theme.bgColor};
   width: 100%;
   min-height: 80vh;
   padding: 5px;
 `;
 
 const Restaurant = styled.div`
-  padding: 12px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   background: white;
-  margin: 10px 5px;
+  margin: 15px 15px;
   border-radius: 3px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid ${({ theme }) => theme.borderColor01};
+  cursor: pointer;
+
+  .tags {
+    span {
+      margin-right: 8px;
+    }
+    margin: 4px 0px;
+  }
+
+  .add_info {
+    font-size: 14px;
+    color: ${({ theme }) => theme.bgColor01};
+  }
 `;
 
 export const FilterDefault = styled.button`
@@ -204,7 +405,6 @@ const Label = styled.div`
 `;
 
 const Column = styled.div`
-  overflow: scroll;
   padding: 10px 12px;
   border-bottom: 1px solid ${({ theme }) => theme.borderColor01};
   width: 100%;
@@ -215,6 +415,17 @@ const Column = styled.div`
   align-items: center;
   justify-content: start;
   cursor: pointer;
+  font-weight: 600;
+  overflow: scroll;
+
+  .filters {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    width: 100%;
+    margin-left: 10px;
+  }
 
   .title {
     font-weight: 600;
@@ -232,15 +443,24 @@ const ResultContainer = styled.div`
   align-items: start;
   justify-content: center;
   font-family: Pretendard;
+
+  .paginations {
+    padding: 12px;
+  }
 `;
 
 export const FullModal = styled(ModalContent)`
-  min-width: 100vw;
-  width: 100vw;
+  min-width: 900px;
   min-height: 100vh;
   border-radius: 0px;
   top: 0px;
   margin: 0px;
+  padding: 20px;
+
+  @media (max-width) {
+    min-width: 200px;
+    padding: 5px;
+  }
 `;
 
 export const FullModalOuter = styled(Modal)`
