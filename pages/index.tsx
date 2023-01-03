@@ -3,7 +3,7 @@ import styled from "@emotion/styled";
 import { NextPage } from "next";
 import React, { useRef, useState } from "react";
 import { ArrowForwardIcon, ChatIcon } from "@chakra-ui/icons";
-import { useChatStore } from "../utils/store";
+import { FIRST_QUESTION, useChatStore } from "../utils/store";
 import ChatBubble from "../components/Chat/ChatBubble";
 import { ChatType } from "./chat";
 import router from "next/router";
@@ -21,7 +21,8 @@ const Home: NextPage = () => {
   const [isBottomOpen, setBottomOpen] = useState(false);
   const [value, setValue] = useState<string>("");
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const { darkMode, setDarkMode, chats, setChats } = useChatStore();
+  const { darkMode, setDarkMode, chats, setChats, setFiltered } =
+    useChatStore();
   const toast = useToast();
 
   const submit = () => {
@@ -42,6 +43,8 @@ const Home: NextPage = () => {
     } else {
       // 바로 입력으로 가면 됨
       console.log("바로 가면됨");
+      setChats([FIRST_QUESTION]);
+      setFiltered([]);
       router.push({
         pathname: "/chat",
         query: { isFromHome: true, text: value },

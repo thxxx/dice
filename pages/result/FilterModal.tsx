@@ -89,6 +89,7 @@ const FilterModal = ({ isFilterOpen, setIsFilterOpen }: FilterModalProps) => {
           <Button
             width="100%"
             colorScheme="purple"
+            mb={3}
             onClick={() => saveChanges()}>
             Save
           </Button>

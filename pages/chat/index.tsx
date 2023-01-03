@@ -5,12 +5,13 @@ import ChatBubble from "../../components/Chat/ChatBubble";
 import styled from "@emotion/styled";
 import { useRef } from "react";
 import AppBar from "../../components/AppBar";
-import { useChatStore } from "../../utils/store";
+import { FIRST_QUESTION, useChatStore } from "../../utils/store";
 import { ChatInput, InputWrapper } from "..";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+import { ArrowForwardIcon, AtSignIcon } from "@chakra-ui/icons";
 import router from "next/router";
 import { ResponseType } from "../api/call";
 import { useToast } from "@chakra-ui/react";
+import axios from "axios";
 
 export enum ChatType {
   BOT = "bot",
@@ -19,18 +20,31 @@ export enum ChatType {
   LOADING = "loading",
 }
 
+const START_WHAT_TO_EAT = "What to eat?";
+
 const ChatPage: NextPage = () => {
   const [input, setInput] = useState<string>("");
   const [question, setQuestion] = useState<string>("");
-  const [answer, setAnswer] = useState<string[]>([]);
-  const [dict, setDict] = useState({});
-  const [validNum, setValidNum] = useState<number>(0);
-  const { chats, key, filtered, setFiltered, setChats, setKey } =
-    useChatStore();
+  const {
+    chats,
+    key,
+    filtered,
+    validNum,
+    dict,
+    answer,
+    setAnswer,
+    setValidNum,
+    setFiltered,
+    setChats,
+    setKey,
+    setDict,
+  } = useChatStore();
   const chatRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const toast = useToast();
+
+  let temp = 0;
 
   useEffect(() => {
     // set scroll to bottom.
@@ -40,7 +54,9 @@ const ChatPage: NextPage = () => {
   }, [chats]);
 
   useEffect(() => {
-    if (router.query.isFromHome) {
+    if (router.query.isFromHome && temp === 0) {
+      temp = 1;
+      resetAll();
       router.replace("/chat", undefined, { shallow: true });
       submitChat(router.query.text as string);
     }
@@ -49,6 +65,7 @@ const ChatPage: NextPage = () => {
 
   const handleClick = async (input: any) => {
     try {
+      console.log("인풋으로 들어가는게 뭐? ", input);
       const response = await fetch("/api/call", {
         method: "POST",
         body: JSON.stringify({
@@ -57,8 +74,6 @@ const ChatPage: NextPage = () => {
         headers: { "Content-Type": "application/json" },
       });
       const output = await response.json();
-
-      console.log(output);
 
       const body: ResponseType = {
         question: output[0],
@@ -91,7 +106,6 @@ const ChatPage: NextPage = () => {
         });
       });
       setFiltered(copiedFilter);
-      console.log("카카", copiedFilter);
 
       return body;
     } catch (error) {}
@@ -127,11 +141,11 @@ const ChatPage: NextPage = () => {
       item.replace(/`s/gi, "").toLowerCase()
     );
 
-    // check whether it is response to bot question
     if (
       answerList.length > 0 &&
       answerList.includes(text.replace(/`s/gi, "").toLowerCase())
     ) {
+      // check whether it is response to bot question
       setChats([
         ...chatsCopied,
         {
@@ -145,6 +159,14 @@ const ChatPage: NextPage = () => {
       else copiedDict[key] = text;
 
       output = await handleClick(copiedDict);
+    } else if (text === START_WHAT_TO_EAT) {
+      chatsCopied.push({
+        type: ChatType.BOT,
+        text: "😁 Okay let me guess what restaurant you would love the most!",
+      });
+      setChats([...chatsCopied]);
+      const input = {};
+      output = await handleClick(input);
     } else if (question) {
       toast({
         position: "top",
@@ -155,25 +177,52 @@ const ChatPage: NextPage = () => {
       });
       return;
     } else {
+      setChats([...chatsCopied]);
       const input = {};
       output = await handleClick(input);
     }
 
     setLoading(true);
-    chatsCopied.push(
-      {
+
+    // only show result button at the latest chat.
+    chatsCopied = chatsCopied.filter((doc) => doc.type !== ChatType.RESULT);
+    // only show result button when filter is more than 2.
+    if (validNum >= 2) {
+      chatsCopied.push({
         type: ChatType.RESULT,
-        text: "see now results",
-      },
-      {
-        type: ChatType.BOT,
-        text: output?.question as string,
-        options: output?.answer,
-        questionKey: output?.key,
-      }
-    );
+        text: "see results",
+      });
+    }
+    chatsCopied.push({
+      type: ChatType.BOT,
+      text: output?.question as string,
+      options: output?.answer,
+      questionKey: output?.key,
+    });
     setChats([...chatsCopied]);
     setLoading(false);
+  };
+
+  const startWhatToEat = () => {
+    resetPastDatas();
+  };
+
+  useEffect(() => {
+    if (input === START_WHAT_TO_EAT) submitChat(input);
+  }, [filtered]);
+
+  const resetAll = () => {
+    setChats([FIRST_QUESTION]);
+  };
+
+  const resetPastDatas = () => {
+    setQuestion("");
+    setAnswer([]);
+    setDict({});
+    setValidNum(0);
+    setFiltered([]);
+    setKey("");
+    setInput(START_WHAT_TO_EAT);
   };
 
   return (
@@ -211,6 +260,13 @@ const ChatPage: NextPage = () => {
           }
         })}
 
+        <AtSignIcon
+          bgColor="purple.600"
+          color="white"
+          padding={4}
+          borderRadius={3}
+          onClick={() => resetAll()}
+        />
         <InputWrapperFixed
           onSubmit={(e: any) => {
             submitChat(input);
@@ -227,7 +283,8 @@ const ChatPage: NextPage = () => {
             <ArrowForwardIcon color="whiteAlpha.800" />
           </span>
           <div className="dontknow">
-            Don{"'"}t know what to eat? <span>Let us Do!</span>
+            Don{"'"}t know what to eat?{" "}
+            <span onClick={() => startWhatToEat()}>Let us Do!</span>
           </div>
         </InputWrapperFixed>
       </ChatContainer>
