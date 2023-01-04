@@ -113,6 +113,21 @@ const ChatPage: NextPage = () => {
     setLoading(false);
   };
 
+  const sendQuery = async (text: string) => {
+    const response = await fetch("/api/query", {
+      method: "POST",
+      body: JSON.stringify({
+        query: text,
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
+    const output = await response.json();
+
+    console.log(output, "ㅇ아웃 2");
+
+    return output;
+  };
+
   const submitChat = async (text: string) => {
     if (loading) return;
     if (text.length === 0) {
@@ -141,11 +156,11 @@ const ChatPage: NextPage = () => {
       item.replace(/`s/gi, "").toLowerCase()
     );
 
+    // It is response situation now and proper answer.
     if (
       answerList.length > 0 &&
       answerList.includes(text.replace(/`s/gi, "").toLowerCase())
     ) {
-      // check whether it is response to bot question
       setChats([
         ...chatsCopied,
         {
@@ -160,6 +175,7 @@ const ChatPage: NextPage = () => {
 
       output = await handleClick(copiedDict);
     } else if (text === START_WHAT_TO_EAT) {
+      // if user asked What To Eat
       chatsCopied.push({
         type: ChatType.BOT,
         text: "😁 Okay let me guess what restaurant you would love the most!",
@@ -168,6 +184,7 @@ const ChatPage: NextPage = () => {
       const input = {};
       output = await handleClick(input);
     } else if (question) {
+      // if it is response situation but not proper answer.
       toast({
         position: "top",
         title: "Please answer to the question",
@@ -177,14 +194,17 @@ const ChatPage: NextPage = () => {
       });
       return;
     } else {
-      setChats([...chatsCopied]);
-      const input = {};
+      // first question.
+      console.log("It is the First question.");
+      const firstFilters = sendQuery(text);
+      // setChats([...chatsCopied]);
+      const input = { ...firstFilters };
       output = await handleClick(input);
     }
 
     setLoading(true);
 
-    // only show result button at the latest chat.
+    // only show result button at the latest chat so delete all.
     chatsCopied = chatsCopied.filter((doc) => doc.type !== ChatType.RESULT);
     // only show result button when filter is more than 2.
     if (validNum >= 2) {
