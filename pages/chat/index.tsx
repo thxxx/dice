@@ -1,7 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { FormEvent, useEffect, useState } from "react";
-import ChatBubble from "../../components/Chat/ChatBubble";
+import ChatBubble, { ChatInputType } from "../../components/Chat/ChatBubble";
 import styled from "@emotion/styled";
 import { useRef } from "react";
 import AppBar from "../../components/AppBar";
@@ -11,7 +11,6 @@ import { ArrowForwardIcon, AtSignIcon } from "@chakra-ui/icons";
 import router from "next/router";
 import { ResponseType } from "../api/call";
 import { useToast } from "@chakra-ui/react";
-import axios from "axios";
 
 export enum ChatType {
   BOT = "bot",
@@ -56,14 +55,18 @@ const ChatPage: NextPage = () => {
   useEffect(() => {
     if (router.query.isFromHome && temp === 0) {
       temp = 1;
-      resetAll();
+      resetPastDatas();
       router.replace("/chat", undefined, { shallow: true });
       submitChat(router.query.text as string);
     }
     inputRef.current && inputRef.current.focus();
   }, []);
 
-  const handleClick = async (input: any) => {
+  useEffect(() => {
+    if (input === START_WHAT_TO_EAT) submitChat(input);
+  }, [filtered]);
+
+  const handleClick = async (input: Object) => {
     try {
       console.log("인풋으로 들어가는게 뭐? ", input);
       const response = await fetch("/api/call", {
@@ -95,6 +98,7 @@ const ChatPage: NextPage = () => {
         answerList: body.answer,
         answer: "",
       });
+
       Object.entries(body.dict).map((entry) => {
         copiedFilter?.map((item: any) => {
           if (
@@ -107,10 +111,22 @@ const ChatPage: NextPage = () => {
       });
       setFiltered(copiedFilter);
 
+      console.log("체크 아웃 필터", copiedFilter);
+
       return body;
     } catch (error) {}
 
     setLoading(false);
+  };
+
+  const showLoading = (copiedChat: ChatInputType[]) => {
+    setChats([
+      ...copiedChat,
+      {
+        type: ChatType.BOT,
+        text: "loading...",
+      },
+    ]);
   };
 
   const sendQuery = async (text: string) => {
@@ -122,9 +138,7 @@ const ChatPage: NextPage = () => {
       headers: { "Content-Type": "application/json" },
     });
     const output = await response.json();
-
-    console.log(output, "ㅇ아웃 2");
-
+    console.log("쿼리를 거쳐서 나온 결과", output);
     return output;
   };
 
@@ -161,16 +175,9 @@ const ChatPage: NextPage = () => {
       answerList.length > 0 &&
       answerList.includes(text.replace(/`s/gi, "").toLowerCase())
     ) {
-      setChats([
-        ...chatsCopied,
-        {
-          type: ChatType.BOT,
-          text: "loading...",
-        },
-      ]);
-
+      showLoading(chatsCopied);
       let copiedDict: any = dict;
-      if (key === "atmosphere") copiedDict[key] = [text];
+      if (key === "atmosphere" || key === "cuisine") copiedDict[key] = [text];
       else copiedDict[key] = text;
 
       output = await handleClick(copiedDict);
@@ -183,6 +190,22 @@ const ChatPage: NextPage = () => {
       setChats([...chatsCopied]);
       const input = {};
       output = await handleClick(input);
+    } else if (key === "atmosphere" || key === "cuisine") {
+      // get long answer from these quesitons
+      showLoading(chatsCopied);
+
+      console.log(key, "에 대하여주관식으로 입력을 받습니다.");
+
+      if (key === "cuisine") {
+        text = "I want a restaurant which cuisine is " + text;
+      } else if (key === "atmosphere") {
+        text = "I want a restaurant which atmosphere is " + text;
+      }
+      const shortAnswer = await sendQuery(text);
+
+      let copiedDict = { ...dict };
+      copiedDict[key] = shortAnswer[key];
+      output = await handleClick(copiedDict);
     } else if (question) {
       // if it is response situation but not proper answer.
       toast({
@@ -196,9 +219,10 @@ const ChatPage: NextPage = () => {
     } else {
       // first question.
       console.log("It is the First question.");
-      const firstFilters = sendQuery(text);
-      // setChats([...chatsCopied]);
+      showLoading(chatsCopied);
+      const firstFilters = await sendQuery(text);
       const input = { ...firstFilters };
+      // const input = {};
       output = await handleClick(input);
     }
 
@@ -226,10 +250,6 @@ const ChatPage: NextPage = () => {
   const startWhatToEat = () => {
     resetPastDatas();
   };
-
-  useEffect(() => {
-    if (input === START_WHAT_TO_EAT) submitChat(input);
-  }, [filtered]);
 
   const resetAll = () => {
     setChats([FIRST_QUESTION]);

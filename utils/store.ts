@@ -5,7 +5,7 @@ import { ChatInputType } from "../components/Chat/ChatBubble";
 export type QuestionType = {
   key: string;
   answerList: string[];
-  answer: string;
+  answer: string | string[];
 };
 
 export const FIRST_QUESTION = {

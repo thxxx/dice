@@ -97,9 +97,9 @@ const Home: NextPage = () => {
                   onClick={(e) => {
                     setValue(item);
                     const timeOut = setTimeout(() => {
-                      submit();
+                      // submit();
                       clearTimeout(timeOut);
-                    }, 500);
+                    }, 1000);
                   }}>
                   {item}
                 </Tag>

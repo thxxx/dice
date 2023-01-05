@@ -124,7 +124,6 @@ const ResultPage = () => {
   };
 
   const returnPages = () => {
-    console.log("길이", restsDummy.length);
     return (
       <>
         {restsDummy.map((_, i) => {
